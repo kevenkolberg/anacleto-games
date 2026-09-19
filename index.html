@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anacleto Games - Simulador Oficial</title>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-dark: #0a0a0c;
@@ -53,6 +55,12 @@
             color: var(--text-muted);
             font-size: 0.85rem;
             margin-top: 4px;
+        }
+
+        .sync-status {
+            font-size: 0.75rem;
+            color: var(--gold-light);
+            margin-top: 5px;
         }
 
         /* Menu de Fases (Abas) */
@@ -157,6 +165,7 @@
             align-items: center;
             font-size: 0.85rem;
             padding: 4px 0;
+            gap: 6px;
         }
 
         .team-name {
@@ -164,7 +173,17 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 5px;
+        }
+
+        .team-input {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 0.8rem;
+            padding: 3px 6px;
+            border-radius: 4px;
+            display: none;
         }
 
         .score-input {
@@ -194,12 +213,12 @@
             background: var(--gold);
             color: var(--bg-dark);
             border: none;
-            padding: 4px 8px;
+            padding: 6px 8px;
             border-radius: 4px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 10px;
             display: none;
             width: 100%;
         }
@@ -242,13 +261,16 @@
         .admin-mode .save-btn { display: block; }
         .admin-mode .match-title-input { display: inline-block; }
         .admin-mode .match-title-text { display: none; }
+        .admin-mode .team-input { display: inline-block; }
+        .admin-mode .team-name { display: none; }
     </style>
 </head>
 <body id="app-body">
 
     <header>
         <h1>Anacleto Games</h1>
-        <p> • Campeonato Anacleto Games • </p>
+        <p>Simulador Oficial de Mata-Mata • Sincronizado em Nuvem</p>
+        <div id="sync-status" class="sync-status">Conectando ao banco de dados...</div>
     </header>
 
     <!-- MENU SUSPENSO / ABAS DE FASES -->
@@ -297,7 +319,12 @@
     </footer>
 
     <script>
-        // Estrutura padrão inicial do campeonato
+        // CONFIGURAÇÃO DO SUPABASE
+        const SUPABASE_URL = 'https://rlsksumgifwvalobwgpn.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_qQqAOvH7T6JgN8BXj4BF7w_3jUejhHF';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         let defaultTournament = {
             f16: [
                 { id: 1, title: "Jogo 1", t1: "Internacional (Nathan)", t2: "Dep. Pasto (Valnei Jr)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 1, slot: 't1' } },
@@ -342,9 +369,44 @@
             ]
         };
 
-        // Carrega dados salvos no navegador ou usa o padrão
-        let tournament = JSON.parse(localStorage.getItem('anacleto_tournament')) || defaultTournament;
+        let tournament = defaultTournament;
         let isAdmin = false;
+
+        async function loadTournamentData() {
+            try {
+                let { data, error } = await supabaseClient
+                    .from('tournament_state')
+                    .select('data')
+                    .eq('id', 1)
+                    .single();
+
+                if (data && data.data) {
+                    tournament = data.data;
+                } else {
+                    await supabaseClient.from('tournament_state').upsert({ id: 1, data: defaultTournament });
+                }
+                document.getElementById('sync-status').innerText = "● Sincronizado com a nuvem";
+                renderAll();
+            } catch (err) {
+                console.error(err);
+                document.getElementById('sync-status').innerText = "● Erro ao conectar na nuvem";
+                renderAll();
+            }
+        }
+
+        async function saveTournamentData() {
+            document.getElementById('sync-status').innerText = "● Salvando na nuvem...";
+            let { error } = await supabaseClient
+                .from('tournament_state')
+                .upsert({ id: 1, data: tournament });
+
+            if (error) {
+                alert("Erro ao salvar no Supabase: " + error.message);
+                document.getElementById('sync-status').innerText = "● Erro ao salvar";
+            } else {
+                document.getElementById('sync-status').innerText = "● Sincronizado com a nuvem";
+            }
+        }
 
         function toggleAdmin() {
             if (!isAdmin) {
@@ -396,55 +458,64 @@
                         </div>
                         <div class="team-row">
                             <span class="team-name" title="${m.t1}">${m.t1}</span>
+                            <input type="text" id="t1_${phaseKey}_${m.id}" class="team-input" value="${m.t1}">
                             <input type="number" id="s1_${phaseKey}_${m.id}" class="score-input" value="${m.s1}">
                             <span class="score-display">${m.s1 !== "" ? m.s1 : "-"}</span>
                         </div>
                         <div class="team-row">
                             <span class="team-name" title="${m.t2}">${m.t2}</span>
+                            <input type="text" id="t2_${phaseKey}_${m.id}" class="team-input" value="${m.t2}">
                             <input type="number" id="s2_${phaseKey}_${m.id}" class="score-input" value="${m.s2}">
                             <span class="score-display">${m.s2 !== "" ? m.s2 : "-"}</span>
                         </div>
-                        <button class="save-btn" onclick="saveAndAdvance('${phaseKey}', ${m.id})">Salvar e Avançar</button>
+                        <button class="save-btn" onclick="saveAndAdvance('${phaseKey}', ${m.id})">Salvar Alterações</button>
                     </div>
                 `;
             });
         }
 
-        function saveAndAdvance(phaseKey, matchId) {
+        async function saveAndAdvance(phaseKey, matchId) {
             const s1Input = document.getElementById(`s1_${phaseKey}_${matchId}`).value;
             const s2Input = document.getElementById(`s2_${phaseKey}_${matchId}`).value;
             const titleInput = document.getElementById(`title_${phaseKey}_${matchId}`).value;
-
-            if (s1Input === "" || s2Input === "") {
-                alert("Preencha ambos os placares!");
-                return;
-            }
+            const t1Input = document.getElementById(`t1_${phaseKey}_${matchId}`).value;
+            const t2Input = document.getElementById(`t2_${phaseKey}_${matchId}`).value;
 
             const match = tournament[phaseKey].find(m => m.id === matchId);
-            match.s1 = s1Input;
-            match.s2 = s2Input;
+            
+            // Atualiza nomes e título independente de ter placar preenchido
             if (titleInput) match.title = titleInput;
+            if (t1Input) match.t1 = t1Input;
+            if (t2Input) match.t2 = t2Input;
 
-            // Avanço automático para a próxima fase
-            if (match.next) {
-                const winner = parseInt(s1Input) > parseInt(s2Input) ? match.t1 : (parseInt(s2Input) > parseInt(s1Input) ? match.t2 : match.t1 + " (Pen.)");
-                
-                const nextMatch = tournament[match.next.phase].find(m => m.id === match.next.matchId);
-                if (nextMatch) {
-                    if (match.next.slot === 't1') nextMatch.t1 = winner;
-                    if (match.next.slot === 't2') nextMatch.t2 = winner;
+            // Se houver placares preenchidos, calcula o avanço automático
+            if (s1Input !== "" && s2Input !== "") {
+                match.s1 = s1Input;
+                match.s2 = s2Input;
+
+                if (match.next) {
+                    const winner = parseInt(s1Input) > parseInt(s2Input) ? match.t1 : (parseInt(s2Input) > parseInt(s1Input) ? match.t2 : match.t1 + " (Pen.)");
+                    
+                    const nextMatch = tournament[match.next.phase].find(m => m.id === match.next.matchId);
+                    if (nextMatch) {
+                        if (match.next.slot === 't1') nextMatch.t1 = winner;
+                        if (match.next.slot === 't2') nextMatch.t2 = winner;
+                    }
                 }
+            } else {
+                match.s1 = s1Input;
+                match.s2 = s2Input;
             }
 
-            // Salva na memória do navegador (localStorage)
-            localStorage.setItem('anacleto_tournament', JSON.stringify(tournament));
+            // Salva permanentemente no Supabase
+            await saveTournamentData();
 
-            alert("Placar salvo e vencedor atualizado automaticamente!");
+            alert("Alterações salvas e sincronizadas na nuvem com sucesso!");
             renderAll();
         }
 
-        // Carga inicial ao abrir a página
-        renderAll();
+        // Carregar dados ao iniciar a página
+        loadTournamentData();
     </script>
 </body>
 </html>
