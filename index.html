@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anacleto Games - Simulador Oficial</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --card-bg: #141418;
+            --gold: #f59e0b;
+            --gold-light: #fbbf24;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #27272a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 900px;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 10px;
+        }
+
+        header h1 {
+            color: var(--gold);
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(245, 158, 11, 0.4);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        /* Menu de Fases (Abas) */
+        .phases-nav {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+        }
+
+        .phase-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .phase-btn.active {
+            background: var(--gold);
+            color: var(--bg-dark);
+            border-color: var(--gold);
+        }
+
+        /* Container dos Jogos */
+        .phase-content {
+            width: 100%;
+            max-width: 900px;
+            display: none;
+            flex: 1;
+        }
+
+        .phase-content.active {
+            display: block;
+        }
+
+        .section-title {
+            color: var(--gold-light);
+            font-size: 1rem;
+            text-transform: uppercase;
+            border-left: 4px solid var(--gold);
+            padding-left: 8px;
+            margin-bottom: 15px;
+        }
+
+        .matches-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .matches-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .match-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .match-header {
+            font-size: 0.75rem;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .match-title-input {
+            background: var(--bg-dark);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-size: 0.75rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: none;
+            width: 120px;
+        }
+
+        .team-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            padding: 4px 0;
+        }
+
+        .team-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 5px;
+        }
+
+        .score-input {
+            width: 38px;
+            background: var(--bg-dark);
+            border: 1px solid var(--gold);
+            color: var(--text);
+            text-align: center;
+            padding: 3px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .score-display {
+            font-weight: bold;
+            background: var(--border);
+            color: var(--gold-light);
+            padding: 2px 8px;
+            border-radius: 4px;
+            min-width: 28px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .save-btn {
+            background: var(--gold);
+            color: var(--bg-dark);
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            display: none;
+            width: 100%;
+        }
+
+        /* Rodapé Discreto Admin */
+        footer {
+            margin-top: 40px;
+            padding: 15px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            width: 100%;
+            max-width: 900px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .admin-footer-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: 0.2s;
+        }
+
+        .admin-footer-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* Ativação do Modo Admin */
+        .admin-mode .score-input { display: inline-block; }
+        .admin-mode .score-display { display: none; }
+        .admin-mode .save-btn { display: block; }
+        .admin-mode .match-title-input { display: inline-block; }
+        .admin-mode .match-title-text { display: none; }
+    </style>
+</head>
+<body id="app-body">
+
+    <header>
+        <h1>Anacleto Games</h1>
+        <p> • Campeonato Anacleto Games • </p>
+    </header>
+
+    <!-- MENU SUSPENSO / ABAS DE FASES -->
+    <div class="phases-nav">
+        <button class="phase-btn active" onclick="switchPhase('f16')">16 Avos</button>
+        <button class="phase-btn" onclick="switchPhase('oitavas')">Oitavas</button>
+        <button class="phase-btn" onclick="switchPhase('quartas')">Quartas</button>
+        <button class="phase-btn" onclick="switchPhase('semi')">Semi</button>
+        <button class="phase-btn" onclick="switchPhase('final')">Final</button>
+    </div>
+
+    <!-- CONTEÚDO: 16 AVOS -->
+    <div id="phase-f16" class="phase-content active">
+        <div class="section-title">16 Avos de Final</div>
+        <div class="matches-grid" id="grid-f16"></div>
+    </div>
+
+    <!-- CONTEÚDO: OITAVAS -->
+    <div id="phase-oitavas" class="phase-content">
+        <div class="section-title">Oitavas de Final</div>
+        <div class="matches-grid" id="grid-oitavas"></div>
+    </div>
+
+    <!-- CONTEÚDO: QUARTAS -->
+    <div id="phase-quartas" class="phase-content">
+        <div class="section-title">Quartas de Final</div>
+        <div class="matches-grid" id="grid-quartas"></div>
+    </div>
+
+    <!-- CONTEÚDO: SEMIFINAL -->
+    <div id="phase-semi" class="phase-content">
+        <div class="section-title">Semifinais</div>
+        <div class="matches-grid" id="grid-semi"></div>
+    </div>
+
+    <!-- CONTEÚDO: FINAL -->
+    <div id="phase-final" class="phase-content">
+        <div class="section-title">🏆 Grande Final</div>
+        <div class="matches-grid" id="grid-final"></div>
+    </div>
+
+    <!-- RODAPÉ DISCRETO COM CONTROLE ADMIN -->
+    <footer>
+        <span id="admin-status-text">Anacleto Games © 2026 — Modo Espectador</span>
+        <button class="admin-footer-btn" id="admin-toggle-btn" onclick="toggleAdmin()">Área do Administrador</button>
+    </footer>
+
+    <script>
+        // Estrutura padrão inicial do campeonato
+        let defaultTournament = {
+            f16: [
+                { id: 1, title: "Jogo 1", t1: "Internacional (Nathan)", t2: "Dep. Pasto (Valnei Jr)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 1, slot: 't1' } },
+                { id: 2, title: "Jogo 2", t1: "Once Caldas (Alyson)", t2: "Uni. Española (Caio Jesus)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 1, slot: 't2' } },
+                { id: 3, title: "Jogo 3", t1: "Independiente (Kolberg)", t2: "Defensa y Just. (Raul S.)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 2, slot: 't1' } },
+                { id: 4, title: "Jogo 4", t1: "San Lorenzo (Murillo)", t2: "Huracán (Guilherme)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 2, slot: 't2' } },
+                { id: 5, title: "Jogo 5", t1: "Junior (Kaio)", t2: "Univ. de Chile (Filipe)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 3, slot: 't1' } },
+                { id: 6, title: "Jogo 6", t1: "Huachipato (Adriano A.)", t2: "Argentinos Jrs (Caio S.)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 3, slot: 't2' } },
+                { id: 7, title: "Jogo 7", t1: "Atl. Mineiro (Jonathan)", t2: "Rosario Central (Walisson)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 4, slot: 't1' } },
+                { id: 8, title: "Jogo 8", t1: "Flamengo (Matheus)", t2: "Santos (Alison Costa)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 4, slot: 't2' } },
+                { id: 9, title: "Jogo 9", t1: "Botafogo (Vinicius)", t2: "Colo-Colo (Jonathan)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 5, slot: 't1' } },
+                { id: 10, title: "Jogo 10", t1: "Cobreloa (Wellington)", t2: "Atl. Nacional (JN7)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 5, slot: 't2' } },
+                { id: 11, title: "Jogo 11", t1: "Grêmio (Leandro)", t2: "Millonarios (Caio Jesus)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 6, slot: 't1' } },
+                { id: 12, title: "Jogo 12", t1: "Boca Juniors (Alison C.)", t2: "Vasco da Gama (Biel)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 6, slot: 't2' } },
+                { id: 13, title: "Jogo 13", t1: "Tolima (Kolberg)", t2: "Newell's Old Boys (Murillo)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 7, slot: 't1' } },
+                { id: 14, title: "Jogo 14", t1: "Uni. Católica (Raul S.)", t2: "River Plate (Nathan)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 7, slot: 't2' } },
+                { id: 15, title: "Jogo 15", t1: "Bahia (Matheus)", t2: "Palmeiras (José Arm.)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 8, slot: 't1' } },
+                { id: 16, title: "Jogo 16", t1: "Vélez (Lukinha)", t2: "Everton (Adriano Alves)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 8, slot: 't2' } }
+            ],
+            oitavas: [
+                { id: 1, title: "Jogo 17", t1: "Aguardando Vencedor Jogo 1", t2: "Aguardando Vencedor Jogo 2", s1: "", s2: "", next: { phase: 'quartas', matchId: 1, slot: 't1' } },
+                { id: 2, title: "Jogo 18", t1: "Aguardando Vencedor Jogo 3", t2: "Aguardando Vencedor Jogo 4", s1: "", s2: "", next: { phase: 'quartas', matchId: 1, slot: 't2' } },
+                { id: 3, title: "Jogo 19", t1: "Aguardando Vencedor Jogo 5", t2: "Aguardando Vencedor Jogo 6", s1: "", s2: "", next: { phase: 'quartas', matchId: 2, slot: 't1' } },
+                { id: 4, title: "Jogo 20", t1: "Aguardando Vencedor Jogo 7", t2: "Aguardando Vencedor Jogo 8", s1: "", s2: "", next: { phase: 'quartas', matchId: 2, slot: 't2' } },
+                { id: 5, title: "Jogo 21", t1: "Aguardando Vencedor Jogo 9", t2: "Aguardando Vencedor Jogo 10", s1: "", s2: "", next: { phase: 'quartas', matchId: 3, slot: 't1' } },
+                { id: 6, title: "Jogo 22", t1: "Aguardando Vencedor Jogo 11", t2: "Aguardando Vencedor Jogo 12", s1: "", s2: "", next: { phase: 'quartas', matchId: 3, slot: 't2' } },
+                { id: 7, title: "Jogo 23", t1: "Aguardando Vencedor Jogo 13", t2: "Aguardando Vencedor Jogo 14", s1: "", s2: "", next: { phase: 'quartas', matchId: 4, slot: 't1' } },
+                { id: 8, title: "Jogo 24", t1: "Aguardando Vencedor Jogo 15", t2: "Aguardando Vencedor Jogo 16", s1: "", s2: "", next: { phase: 'quartas', matchId: 4, slot: 't2' } }
+            ],
+            quartas: [
+                { id: 1, title: "Jogo 25", t1: "Aguardando Vencedor Jogo 17", t2: "Aguardando Vencedor Jogo 18", s1: "", s2: "", next: { phase: 'semi', matchId: 1, slot: 't1' } },
+                { id: 2, title: "Jogo 26", t1: "Aguardando Vencedor Jogo 19", t2: "Aguardando Vencedor Jogo 20", s1: "", s2: "", next: { phase: 'semi', matchId: 1, slot: 't2' } },
+                { id: 3, title: "Jogo 27", t1: "Aguardando Vencedor Jogo 21", t2: "Aguardando Vencedor Jogo 22", s1: "", s2: "", next: { phase: 'semi', matchId: 2, slot: 't1' } },
+                { id: 4, title: "Jogo 28", t1: "Aguardando Vencedor Jogo 23", t2: "Aguardando Vencedor Jogo 24", s1: "", s2: "", next: { phase: 'semi', matchId: 2, slot: 't2' } }
+            ],
+            semi: [
+                { id: 1, title: "Jogo 29", t1: "Aguardando Vencedor Jogo 25", t2: "Aguardando Vencedor Jogo 26", s1: "", s2: "", next: { phase: 'final', matchId: 1, slot: 't1' } },
+                { id: 2, title: "Jogo 30", t1: "Aguardando Vencedor Jogo 27", t2: "Aguardando Vencedor Jogo 28", s1: "", s2: "", next: { phase: 'final', matchId: 1, slot: 't2' } }
+            ],
+            final: [
+                { id: 1, title: "Grande Final", t1: "Aguardando Vencedor Jogo 29", t2: "Aguardando Vencedor Jogo 30", s1: "", s2: "", next: null }
+            ]
+        };
+
+        // Carrega dados salvos no navegador ou usa o padrão
+        let tournament = JSON.parse(localStorage.getItem('anacleto_tournament')) || defaultTournament;
+        let isAdmin = false;
+
+        function toggleAdmin() {
+            if (!isAdmin) {
+                let senha = prompt("Digite a senha de Administrador:");
+                if (senha === "anacleto2026") {
+                    isAdmin = true;
+                    document.getElementById('app-body').classList.add('admin-mode');
+                    document.getElementById('admin-status-text').innerText = "Anacleto Games © 2026 — [ Modo Admin Ativo ]";
+                    document.getElementById('admin-toggle-btn').innerText = "Sair do Admin";
+                    renderAll();
+                } else if (senha !== null) {
+                    alert("Senha incorreta!");
+                }
+            } else {
+                isAdmin = false;
+                document.getElementById('app-body').classList.remove('admin-mode');
+                document.getElementById('admin-status-text').innerText = "Anacleto Games © 2026 — Modo Espectador";
+                document.getElementById('admin-toggle-btn').innerText = "Área do Administrador";
+                renderAll();
+            }
+        }
+
+        function switchPhase(phaseId) {
+            document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.phase-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById('phase-' + phaseId).classList.add('active');
+        }
+
+        function renderAll() {
+            renderPhase('f16', 'grid-f16');
+            renderPhase('oitavas', 'grid-oitavas');
+            renderPhase('quartas', 'grid-quartas');
+            renderPhase('semi', 'grid-semi');
+            renderPhase('final', 'grid-final');
+        }
+
+        function renderPhase(phaseKey, gridId) {
+            const grid = document.getElementById(gridId);
+            grid.innerHTML = '';
+            
+            tournament[phaseKey].forEach(m => {
+                grid.innerHTML += `
+                    <div class="match-card">
+                        <div class="match-header">
+                            <span class="match-title-text">${m.title}</span>
+                            <input type="text" id="title_${phaseKey}_${m.id}" class="match-title-input" value="${m.title}">
+                        </div>
+                        <div class="team-row">
+                            <span class="team-name" title="${m.t1}">${m.t1}</span>
+                            <input type="number" id="s1_${phaseKey}_${m.id}" class="score-input" value="${m.s1}">
+                            <span class="score-display">${m.s1 !== "" ? m.s1 : "-"}</span>
+                        </div>
+                        <div class="team-row">
+                            <span class="team-name" title="${m.t2}">${m.t2}</span>
+                            <input type="number" id="s2_${phaseKey}_${m.id}" class="score-input" value="${m.s2}">
+                            <span class="score-display">${m.s2 !== "" ? m.s2 : "-"}</span>
+                        </div>
+                        <button class="save-btn" onclick="saveAndAdvance('${phaseKey}', ${m.id})">Salvar e Avançar</button>
+                    </div>
+                `;
+            });
+        }
+
+        function saveAndAdvance(phaseKey, matchId) {
+            const s1Input = document.getElementById(`s1_${phaseKey}_${matchId}`).value;
+            const s2Input = document.getElementById(`s2_${phaseKey}_${matchId}`).value;
+            const titleInput = document.getElementById(`title_${phaseKey}_${matchId}`).value;
+
+            if (s1Input === "" || s2Input === "") {
+                alert("Preencha ambos os placares!");
+                return;
+            }
+
+            const match = tournament[phaseKey].find(m => m.id === matchId);
+            match.s1 = s1Input;
+            match.s2 = s2Input;
+            if (titleInput) match.title = titleInput;
+
+            // Avanço automático para a próxima fase
+            if (match.next) {
+                const winner = parseInt(s1Input) > parseInt(s2Input) ? match.t1 : (parseInt(s2Input) > parseInt(s1Input) ? match.t2 : match.t1 + " (Pen.)");
+                
+                const nextMatch = tournament[match.next.phase].find(m => m.id === match.next.matchId);
+                if (nextMatch) {
+                    if (match.next.slot === 't1') nextMatch.t1 = winner;
+                    if (match.next.slot === 't2') nextMatch.t2 = winner;
+                }
+            }
+
+            // Salva na memória do navegador (localStorage)
+            localStorage.setItem('anacleto_tournament', JSON.stringify(tournament));
+
+            alert("Placar salvo e vencedor atualizado automaticamente!");
+            renderAll();
+        }
+
+        // Carga inicial ao abrir a página
+        renderAll();
+    </script>
+</body>
+</html>
