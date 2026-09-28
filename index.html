@@ -704,15 +704,23 @@
                 let matchIdCounter = 1;
                 if (teamsPerGroup === 3) {
                     matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[1], s1: "", s2: "" });
-                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[2], s1: "", s2: "" });
-                    matches.push({ id: matchIdCounter++, t1: teams[1], t2: teams[2], s1: "", s2: "" });
+                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[3 || 2], s1: "", s2: "" }); // Ajuste seguro
+                    // Recalculando corretamente os índices dos confrontos de 3 times:
+                    // 0 vs 1, 0 vs 2, 1 vs 2
+                    matches = [
+                        { id: 1, t1: teams[0], t2: teams[1], s1: "", s2: "" },
+                        { id: 2, t1: teams[0], t2: teams[2], s1: "", s2: "" },
+                        { id: 3, t1: teams[1], t2: teams[2], s1: "", s2: "" }
+                    ];
                 } else if (teamsPerGroup === 4) {
-                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[1], s1: "", s2: "" });
-                    matches.push({ id: matchIdCounter++, t1: teams[2], t2: teams[3], s1: "", s2: "" });
-                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[2], s1: "", s2: "" });
-                    matches.push({ id: matchIdCounter++, t1: teams[1], t2: teams[3], s1: "", s2: "" });
-                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[3], s1: "", s2: "" });
-                    matches.push({ id: matchIdCounter++, t1: teams[1], t2: teams[2], s1: "", s2: "" });
+                    matches = [
+                        { id: 1, t1: teams[0], t2: teams[1], s1: "", s2: "" },
+                        { id: 2, t1: teams[2], t2: teams[3], s1: "", s2: "" },
+                        { id: 3, t1: teams[0], t2: teams[2], s1: "", s2: "" },
+                        { id: 4, t1: teams[1], t2: teams[3], s1: "", s2: "" },
+                        { id: 5, t1: teams[0], t2: teams[3], s1: "", s2: "" },
+                        { id: 6, t1: teams[1], t2: teams[2], s1: "", s2: "" }
+                    ];
                 }
 
                 newGroupsData.push({
