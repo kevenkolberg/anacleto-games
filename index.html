@@ -154,7 +154,7 @@
             flex-wrap: wrap;
         }
 
-        .config-row select, .config-row input {
+        .config-row select {
             background: var(--bg-dark);
             border: 1px solid var(--border);
             color: var(--text);
@@ -417,28 +417,23 @@
             <span>Fase de Grupos</span>
             <div class="action-buttons">
                 <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
-                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+                <button class="reset-btn" onclick="resetPhase('grupos')">Zerar Fase</button>
             </div>
         </div>
 
         <!-- Painel de Configuração de Grupos (Admin) -->
         <div class="groups-config-panel">
-            <h3 style="color: var(--gold); font-size: 0.9rem; margin-bottom: 10px;">⚙️ Gerador Automático de Grupos (Até 16 Grupos)</h3>
+            <h3 style="color: var(--gold); font-size: 0.9rem; margin-bottom: 10px;">⚙️ Gerenciador de Grupos (3 Times por Chave)</h3>
             <div class="config-row">
-                <label>Qtd. Grupos:</label>
+                <label>Qtd. de Grupos:</label>
                 <select id="config-num-groups">
                     <option value="2">2 Grupos</option>
-                    <option value="4">4 Grupos</option>
+                    <option value="4" selected>4 Grupos</option>
                     <option value="8">8 Grupos</option>
                     <option value="12">12 Grupos</option>
                     <option value="16">16 Grupos</option>
                 </select>
-                <label>Times/Grupo:</label>
-                <select id="config-teams-per-group">
-                    <option value="3" selected>3 Times (3 Jogos)</option>
-                    <option value="4">4 Times (6 Jogos)</option>
-                </select>
-                <button class="save-btn" style="width: auto; margin-top: 0; padding: 6px 14px;" onclick="generateGroupsStructure()">Gerar Estrutura</button>
+                <button class="save-btn" style="width: auto; margin-top: 0; padding: 6px 14px;" onclick="generateGroupsStructure()">Gerar Estrutura de Grupos</button>
             </div>
         </div>
 
@@ -451,7 +446,7 @@
             <span>16 Avos de Final</span>
             <div class="action-buttons">
                 <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
-                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+                <button class="reset-btn" onclick="resetPhase('f16')">Zerar Fase</button>
             </div>
         </div>
         <div class="matches-grid" id="grid-f16"></div>
@@ -463,7 +458,7 @@
             <span>Oitavas de Final</span>
             <div class="action-buttons">
                 <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
-                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+                <button class="reset-btn" onclick="resetPhase('oitavas')">Zerar Fase</button>
             </div>
         </div>
         <div class="matches-grid" id="grid-oitavas"></div>
@@ -475,7 +470,7 @@
             <span>Quartas de Final</span>
             <div class="action-buttons">
                 <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
-                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+                <button class="reset-btn" onclick="resetPhase('quartas')">Zerar Fase</button>
             </div>
         </div>
         <div class="matches-grid" id="grid-quartas"></div>
@@ -487,7 +482,7 @@
             <span>Semifinais</span>
             <div class="action-buttons">
                 <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
-                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+                <button class="reset-btn" onclick="resetPhase('semi')">Zerar Fase</button>
             </div>
         </div>
         <div class="matches-grid" id="grid-semi"></div>
@@ -499,7 +494,7 @@
             <span>🏆 Grande Final</span>
             <div class="action-buttons">
                 <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
-                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+                <button class="reset-btn" onclick="resetPhase('final')">Zerar Fase</button>
             </div>
         </div>
         <div class="matches-grid" id="grid-final"></div>
@@ -520,7 +515,7 @@
 
         let defaultTournament = {
             grupos: {
-                config: { numGroups: 4, teamsPerGroup: 3 },
+                config: { numGroups: 4 },
                 data: [
                     {
                         name: "Grupo A",
@@ -625,22 +620,31 @@
             }
         }
 
-        async function resetTournament() {
-            if (confirm("Tem certeza que deseja ZERAR todo o torneio? Todos os placares, nomes e fases serão limpos para o padrão inicial.")) {
-                tournament = JSON.parse(JSON.stringify(defaultTournament));
+        async function resetPhase(phaseKey) {
+            let phaseNames = {
+                grupos: "Fase de Grupos",
+                f16: "16 Avos de Final",
+                oitavas: "Oitavas de Final",
+                quartas: "Quartas de Final",
+                semi: "Semifinais",
+                final: "Grande Final"
+            };
+
+            if (confirm(`Tem certeza que deseja zerar a fase "${phaseNames[phaseKey]}"? Os placares e dados desta fase específica serão limpos.`)) {
+                if (phaseKey === 'grupos') {
+                    tournament.grupos = JSON.parse(JSON.stringify(defaultTournament.grupos));
+                } else {
+                    tournament[phaseKey] = JSON.parse(JSON.stringify(defaultTournament[phaseKey]));
+                }
                 await saveTournamentData();
-                alert("Torneio zerado e limpo com sucesso!");
-                updateConfigUI();
-                renderAll();
+                alert(`Fase "${phaseNames[phaseKey]}" zerada com sucesso!`);
             }
         }
 
         function updateConfigUI() {
             if (tournament.grupos && tournament.grupos.config) {
                 const numGroupsSelect = document.getElementById('config-num-groups');
-                const teamsPerGroupSelect = document.getElementById('config-teams-per-group');
                 if (numGroupsSelect) numGroupsSelect.value = tournament.grupos.config.numGroups;
-                if (teamsPerGroupSelect) teamsPerGroupSelect.value = tournament.grupos.config.teamsPerGroup;
             }
         }
 
@@ -684,7 +688,6 @@
 
         function generateGroupsStructure() {
             const numGroups = parseInt(document.getElementById('config-num-groups').value);
-            const teamsPerGroup = parseInt(document.getElementById('config-teams-per-group').value);
 
             let newGroupsData = [];
             const groupNames = [
@@ -695,33 +698,18 @@
             ];
 
             for (let i = 0; i < numGroups; i++) {
-                let teams = [];
-                for (let t = 0; t < teamsPerGroup; t++) {
-                    teams.push(`Time ${t + 1} do ${groupNames[i]}`);
-                }
+                let teams = [
+                    `Time 1 do ${groupNames[i]}`, 
+                    `Time 2 do ${groupNames[i]}`, 
+                    `Time 3 do ${groupNames[i]}`
+                ];
 
-                let matches = [];
-                let matchIdCounter = 1;
-                if (teamsPerGroup === 3) {
-                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[1], s1: "", s2: "" });
-                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[3 || 2], s1: "", s2: "" }); // Ajuste seguro
-                    // Recalculando corretamente os índices dos confrontos de 3 times:
-                    // 0 vs 1, 0 vs 2, 1 vs 2
-                    matches = [
-                        { id: 1, t1: teams[0], t2: teams[1], s1: "", s2: "" },
-                        { id: 2, t1: teams[0], t2: teams[2], s1: "", s2: "" },
-                        { id: 3, t1: teams[1], t2: teams[2], s1: "", s2: "" }
-                    ];
-                } else if (teamsPerGroup === 4) {
-                    matches = [
-                        { id: 1, t1: teams[0], t2: teams[1], s1: "", s2: "" },
-                        { id: 2, t1: teams[2], t2: teams[3], s1: "", s2: "" },
-                        { id: 3, t1: teams[0], t2: teams[2], s1: "", s2: "" },
-                        { id: 4, t1: teams[1], t2: teams[3], s1: "", s2: "" },
-                        { id: 5, t1: teams[0], t2: teams[3], s1: "", s2: "" },
-                        { id: 6, t1: teams[1], t2: teams[2], s1: "", s2: "" }
-                    ];
-                }
+                // Os 3 confrontos obrigatórios para chave com 3 times
+                let matches = [
+                    { id: 1, t1: teams[0], t2: teams[1], s1: "", s2: "" },
+                    { id: 2, t1: teams[0], t2: teams[2], s1: "", s2: "" },
+                    { id: 3, t1: teams[1], t2: teams[2], s1: "", s2: "" }
+                ];
 
                 newGroupsData.push({
                     name: groupNames[i],
@@ -731,7 +719,7 @@
             }
 
             tournament.grupos = {
-                config: { numGroups, teamsPerGroup },
+                config: { numGroups },
                 data: newGroupsData
             };
 
