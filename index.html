@@ -114,6 +114,100 @@
             border-left: 4px solid var(--gold);
             padding-left: 8px;
             margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Painel de Configuração de Grupos (Admin) */
+        .groups-config-panel {
+            background: var(--card-bg);
+            border: 1px dashed var(--gold);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .admin-mode .groups-config-panel {
+            display: block;
+        }
+
+        .config-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .config-row select, .config-row input {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+
+        .group-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .group-title {
+            color: var(--gold);
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        /* Tabela de Classificação */
+        table.standings-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+
+        table.standings-table th, table.standings-table td {
+            border: 1px solid var(--border);
+            padding: 6px;
+            text-align: center;
+        }
+
+        table.standings-table th {
+            background: var(--bg-dark);
+            color: var(--gold-light);
+        }
+
+        table.standings-table td.team-cell {
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .team-group-input {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        .admin-mode .team-group-input {
+            display: block;
+        }
+
+        .admin-mode .team-group-display {
+            display: none;
         }
 
         .matches-grid {
@@ -129,11 +223,10 @@
         }
 
         .match-card {
-            background: var(--card-bg);
+            background: var(--bg-dark);
             border: 1px solid var(--border);
             border-radius: 6px;
             padding: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .match-header {
@@ -148,7 +241,7 @@
         }
 
         .match-title-input {
-            background: var(--bg-dark);
+            background: var(--card-bg);
             border: 1px solid var(--gold);
             color: var(--gold);
             font-size: 0.75rem;
@@ -177,7 +270,7 @@
 
         .team-input {
             flex: 1;
-            background: var(--bg-dark);
+            background: var(--card-bg);
             border: 1px solid var(--border);
             color: var(--text);
             font-size: 0.8rem;
@@ -188,7 +281,7 @@
 
         .score-input {
             width: 38px;
-            background: var(--bg-dark);
+            background: var(--card-bg);
             border: 1px solid var(--gold);
             color: var(--text);
             text-align: center;
@@ -221,6 +314,23 @@
             margin-top: 10px;
             display: none;
             width: 100%;
+        }
+
+        .global-save-btn {
+            background: var(--gold);
+            color: var(--bg-dark);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .admin-mode .global-save-btn {
+            display: inline-block;
         }
 
         /* Rodapé Discreto Admin */
@@ -269,21 +379,53 @@
 
     <header>
         <h1>Anacleto Games</h1>
-        <p>Simulador Oficial de Mata-Mata • Sincronizado em Nuvem</p>
+        <p>Simulador Oficial • Grupos & Mata-Mata • Sincronizado em Nuvem</p>
         <div id="sync-status" class="sync-status">Conectando ao banco de dados...</div>
     </header>
 
     <!-- MENU SUSPENSO / ABAS DE FASES -->
     <div class="phases-nav">
-        <button class="phase-btn active" onclick="switchPhase('f16')">16 Avos</button>
+        <button class="phase-btn active" onclick="switchPhase('grupos')">Fase de Grupos</button>
+        <button class="phase-btn" onclick="switchPhase('f16')">16 Avos</button>
         <button class="phase-btn" onclick="switchPhase('oitavas')">Oitavas</button>
         <button class="phase-btn" onclick="switchPhase('quartas')">Quartas</button>
         <button class="phase-btn" onclick="switchPhase('semi')">Semi</button>
         <button class="phase-btn" onclick="switchPhase('final')">Final</button>
     </div>
 
+    <!-- CONTEÚDO: FASE DE GRUPOS -->
+    <div id="phase-grupos" class="phase-content active">
+        <div class="section-title">
+            <span>Fase de Grupos</span>
+            <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações Gerais</button>
+        </div>
+
+        <!-- Painel de Configuração de Grupos (Admin) -->
+        <div class="groups-config-panel">
+            <h3 style="color: var(--gold); font-size: 0.9rem; margin-bottom: 10px;">⚙️ Gerador Automático de Grupos</h3>
+            <div class="config-row">
+                <label>Quantidade de Grupos:</label>
+                <select id="config-num-groups">
+                    <option value="2">2 Grupos</option>
+                    <option value="4" selected>4 Grupos</option>
+                    <option value="8">8 Grupos</option>
+                </select>
+                <label>Times por Grupo:</label>
+                <select id="config-teams-per-group">
+                    <option value="3" selected>3 Times (3 Jogos)</option>
+                    <option value="4">4 Times (6 Jogos)</option>
+                </select>
+                <button class="save-btn" style="width: auto; margin-top: 0; padding: 6px 14px;" onclick="generateGroupsStructure()">Gerar Estrutura de Grupos</button>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Aviso: Gerar nova estrutura sobrescreve os times atuais dos grupos.</p>
+        </div>
+
+        <!-- Renderização Dinâmica dos Grupos -->
+        <div id="groups-wrapper"></div>
+    </div>
+
     <!-- CONTEÚDO: 16 AVOS -->
-    <div id="phase-f16" class="phase-content active">
+    <div id="phase-f16" class="phase-content">
         <div class="section-title">16 Avos de Final</div>
         <div class="matches-grid" id="grid-f16"></div>
     </div>
@@ -326,46 +468,44 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let defaultTournament = {
+            grupos: {
+                config: { numGroups: 4, teamsPerGroup: 3 },
+                data: [
+                    {
+                        name: "Grupo A",
+                        teams: ["Internacional (Nathan)", "Once Caldas (Alyson)", "Independiente (Kolberg)"],
+                        matches: [
+                            { id: 1, t1: "Internacional (Nathan)", t2: "Once Caldas (Alyson)", s1: "", s2: "" },
+                            { id: 2, t1: "Internacional (Nathan)", t2: "Independiente (Kolberg)", s1: "", s2: "" },
+                            { id: 3, t1: "Once Caldas (Alyson)", t2: "Independiente (Kolberg)", s1: "", s2: "" }
+                        ]
+                    },
+                    {
+                        name: "Grupo B",
+                        teams: ["San Lorenzo (Murillo)", "Junior (Kaio)", "Huachipato (Adriano A.)"],
+                        matches: [
+                            { id: 1, t1: "San Lorenzo (Murillo)", t2: "Junior (Kaio)", s1: "", s2: "" },
+                            { id: 2, t1: "San Lorenzo (Murillo)", t2: "Huachipato (Adriano A.)", s1: "", s2: "" },
+                            { id: 3, t1: "Junior (Kaio)", t2: "Huachipato (Adriano A.)", s1: "", s2: "" }
+                        ]
+                    }
+                ]
+            },
             f16: [
-                { id: 1, title: "Jogo 1", t1: "Internacional (Nathan)", t2: "Dep. Pasto (Valnei Jr)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 1, slot: 't1' } },
-                { id: 2, title: "Jogo 2", t1: "Once Caldas (Alyson)", t2: "Uni. Española (Caio Jesus)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 1, slot: 't2' } },
-                { id: 3, title: "Jogo 3", t1: "Independiente (Kolberg)", t2: "Defensa y Just. (Raul S.)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 2, slot: 't1' } },
-                { id: 4, title: "Jogo 4", t1: "San Lorenzo (Murillo)", t2: "Huracán (Guilherme)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 2, slot: 't2' } },
-                { id: 5, title: "Jogo 5", t1: "Junior (Kaio)", t2: "Univ. de Chile (Filipe)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 3, slot: 't1' } },
-                { id: 6, title: "Jogo 6", t1: "Huachipato (Adriano A.)", t2: "Argentinos Jrs (Caio S.)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 3, slot: 't2' } },
-                { id: 7, title: "Jogo 7", t1: "Atl. Mineiro (Jonathan)", t2: "Rosario Central (Walisson)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 4, slot: 't1' } },
-                { id: 8, title: "Jogo 8", t1: "Flamengo (Matheus)", t2: "Santos (Alison Costa)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 4, slot: 't2' } },
-                { id: 9, title: "Jogo 9", t1: "Botafogo (Vinicius)", t2: "Colo-Colo (Jonathan)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 5, slot: 't1' } },
-                { id: 10, title: "Jogo 10", t1: "Cobreloa (Wellington)", t2: "Atl. Nacional (JN7)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 5, slot: 't2' } },
-                { id: 11, title: "Jogo 11", t1: "Grêmio (Leandro)", t2: "Millonarios (Caio Jesus)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 6, slot: 't1' } },
-                { id: 12, title: "Jogo 12", t1: "Boca Juniors (Alison C.)", t2: "Vasco da Gama (Biel)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 6, slot: 't2' } },
-                { id: 13, title: "Jogo 13", t1: "Tolima (Kolberg)", t2: "Newell's Old Boys (Murillo)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 7, slot: 't1' } },
-                { id: 14, title: "Jogo 14", t1: "Uni. Católica (Raul S.)", t2: "River Plate (Nathan)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 7, slot: 't2' } },
-                { id: 15, title: "Jogo 15", t1: "Bahia (Matheus)", t2: "Palmeiras (José Arm.)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 8, slot: 't1' } },
-                { id: 16, title: "Jogo 16", t1: "Vélez (Lukinha)", t2: "Everton (Adriano Alves)", s1: "", s2: "", next: { phase: 'oitavas', matchId: 8, slot: 't2' } }
+                { id: 1, title: "Jogo 1", t1: "1º Grupo A", t2: "2º Grupo B", s1: "", s2: "", next: { phase: 'oitavas', matchId: 1, slot: 't1' } },
+                { id: 2, title: "Jogo 2", t1: "1º Grupo B", t2: "2º Grupo A", s1: "", s2: "", next: { phase: 'oitavas', matchId: 1, slot: 't2' } }
             ],
             oitavas: [
-                { id: 1, title: "Jogo 17", t1: "Aguardando Vencedor Jogo 1", t2: "Aguardando Vencedor Jogo 2", s1: "", s2: "", next: { phase: 'quartas', matchId: 1, slot: 't1' } },
-                { id: 2, title: "Jogo 18", t1: "Aguardando Vencedor Jogo 3", t2: "Aguardando Vencedor Jogo 4", s1: "", s2: "", next: { phase: 'quartas', matchId: 1, slot: 't2' } },
-                { id: 3, title: "Jogo 19", t1: "Aguardando Vencedor Jogo 5", t2: "Aguardando Vencedor Jogo 6", s1: "", s2: "", next: { phase: 'quartas', matchId: 2, slot: 't1' } },
-                { id: 4, title: "Jogo 20", t1: "Aguardando Vencedor Jogo 7", t2: "Aguardando Vencedor Jogo 8", s1: "", s2: "", next: { phase: 'quartas', matchId: 2, slot: 't2' } },
-                { id: 5, title: "Jogo 21", t1: "Aguardando Vencedor Jogo 9", t2: "Aguardando Vencedor Jogo 10", s1: "", s2: "", next: { phase: 'quartas', matchId: 3, slot: 't1' } },
-                { id: 6, title: "Jogo 22", t1: "Aguardando Vencedor Jogo 11", t2: "Aguardando Vencedor Jogo 12", s1: "", s2: "", next: { phase: 'quartas', matchId: 3, slot: 't2' } },
-                { id: 7, title: "Jogo 23", t1: "Aguardando Vencedor Jogo 13", t2: "Aguardando Vencedor Jogo 14", s1: "", s2: "", next: { phase: 'quartas', matchId: 4, slot: 't1' } },
-                { id: 8, title: "Jogo 24", t1: "Aguardando Vencedor Jogo 15", t2: "Aguardando Vencedor Jogo 16", s1: "", s2: "", next: { phase: 'quartas', matchId: 4, slot: 't2' } }
+                { id: 1, title: "Jogo 3", t1: "Aguardando Vencedor Jogo 1", t2: "Aguardando Vencedor Jogo 2", s1: "", s2: "", next: { phase: 'quartas', matchId: 1, slot: 't1' } }
             ],
             quartas: [
-                { id: 1, title: "Jogo 25", t1: "Aguardando Vencedor Jogo 17", t2: "Aguardando Vencedor Jogo 18", s1: "", s2: "", next: { phase: 'semi', matchId: 1, slot: 't1' } },
-                { id: 2, title: "Jogo 26", t1: "Aguardando Vencedor Jogo 19", t2: "Aguardando Vencedor Jogo 20", s1: "", s2: "", next: { phase: 'semi', matchId: 1, slot: 't2' } },
-                { id: 3, title: "Jogo 27", t1: "Aguardando Vencedor Jogo 21", t2: "Aguardando Vencedor Jogo 22", s1: "", s2: "", next: { phase: 'semi', matchId: 2, slot: 't1' } },
-                { id: 4, title: "Jogo 28", t1: "Aguardando Vencedor Jogo 23", t2: "Aguardando Vencedor Jogo 24", s1: "", s2: "", next: { phase: 'semi', matchId: 2, slot: 't2' } }
+                { id: 1, title: "Jogo 4", t1: "Aguardando Vencedor Jogo 3", t2: "Aguardando Vencedor...", s1: "", s2: "", next: { phase: 'semi', matchId: 1, slot: 't1' } }
             ],
             semi: [
-                { id: 1, title: "Jogo 29", t1: "Aguardando Vencedor Jogo 25", t2: "Aguardando Vencedor Jogo 26", s1: "", s2: "", next: { phase: 'final', matchId: 1, slot: 't1' } },
-                { id: 2, title: "Jogo 30", t1: "Aguardando Vencedor Jogo 27", t2: "Aguardando Vencedor Jogo 28", s1: "", s2: "", next: { phase: 'final', matchId: 1, slot: 't2' } }
+                { id: 1, title: "Jogo 5", t1: "Aguardando...", t2: "Aguardando...", s1: "", s2: "", next: { phase: 'final', matchId: 1, slot: 't1' } }
             ],
             final: [
-                { id: 1, title: "Grande Final", t1: "Aguardando Vencedor Jogo 29", t2: "Aguardando Vencedor Jogo 30", s1: "", s2: "", next: null }
+                { id: 1, title: "Grande Final", t1: "Aguardando...", t2: "Aguardando...", s1: "", s2: "", next: null }
             ]
         };
 
@@ -382,6 +522,8 @@
 
                 if (data && data.data) {
                     tournament = data.data;
+                    // Garante compatibilidade se estrutura antiga não tiver grupos
+                    if (!tournament.grupos) tournament.grupos = defaultTournament.grupos;
                 } else {
                     await supabaseClient.from('tournament_state').upsert({ id: 1, data: defaultTournament });
                 }
@@ -396,6 +538,10 @@
 
         async function saveTournamentData() {
             document.getElementById('sync-status').innerText = "● Salvando na nuvem...";
+            
+            // Recolhe dados atuais da tela de grupos antes de salvar
+            collectGroupsFromDOM();
+
             let { error } = await supabaseClient
                 .from('tournament_state')
                 .upsert({ id: 1, data: tournament });
@@ -405,6 +551,8 @@
                 document.getElementById('sync-status').innerText = "● Erro ao salvar";
             } else {
                 document.getElementById('sync-status').innerText = "● Sincronizado com a nuvem";
+                alert("Dados salvos e sincronizados com sucesso!");
+                renderAll();
             }
         }
 
@@ -438,6 +586,7 @@
         }
 
         function renderAll() {
+            renderGroups();
             renderPhase('f16', 'grid-f16');
             renderPhase('oitavas', 'grid-oitavas');
             renderPhase('quartas', 'grid-quartas');
@@ -445,8 +594,212 @@
             renderPhase('final', 'grid-final');
         }
 
+        // --- GERADOR AUTOMÁTICO DE GRUPOS E CONFRONTOS ---
+        function generateGroupsStructure() {
+            const numGroups = parseInt(document.getElementById('config-num-groups').value);
+            const teamsPerGroup = parseInt(document.getElementById('config-teams-per-group').value);
+
+            let newGroupsData = [];
+            const groupNames = ["Grupo A", "Grupo B", "Grupo C", "Grupo D", "Grupo E", "Grupo F", "Grupo G", "Grupo H"];
+
+            for (let i = 0; i < numGroups; i++) {
+                let teams = [];
+                for (let t = 0; t < teamsPerGroup; t++) {
+                    teams.push(`Time ${t + 1} do ${groupNames[i]}`);
+                }
+
+                // Gera confrontos automáticos baseado na quantidade de times
+                let matches = [];
+                let matchIdCounter = 1;
+                if (teamsPerGroup === 3) {
+                    // 3 jogos: 0 vs 1, 0 vs 2, 1 vs 2
+                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[1], s1: "", s2: "" });
+                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[2], s1: "", s2: "" });
+                    matches.push({ id: matchIdCounter++, t1: teams[1], t2: teams[2], s1: "", s2: "" });
+                } else if (teamsPerGroup === 4) {
+                    // 6 jogos: 0x1, 2x3, 0x2, 1x3, 0x3, 1x2
+                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[1], s1: "", s2: "" });
+                    matches.push({ id: matchIdCounter++, t1: teams[2], t2: teams[3], s1: "", s2: "" });
+                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[2], s1: "", s2: "" });
+                    matches.push({ id: matchIdCounter++, t1: teams[1], t2: teams[3], s1: "", s2: "" });
+                    matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[3], s1: "", s2: "" });
+                    matches.push({ id: matchIdCounter++, t1: teams[1], t2: teams[2], s1: "", s2: "" });
+                }
+
+                newGroupsData.push({
+                    name: groupNames[i],
+                    teams: teams,
+                    matches: matches
+                });
+            }
+
+            tournament.grupos = {
+                config: { numGroups, teamsPerGroup },
+                data: newGroupsData
+            };
+
+            saveTournamentData();
+        }
+
+        // Recolhe dados editados na tela antes de salvar
+        function collectGroupsFromDOM() {
+            if (!tournament.grupos || !tournament.grupos.data) return;
+
+            tournament.grupos.data.forEach((g, gIndex) => {
+                // Atualiza nomes dos times
+                g.teams.forEach((_, tIndex) => {
+                    const input = document.getElementById(`team_${gIndex}_${tIndex}`);
+                    if (input) g.teams[tIndex] = input.value;
+                });
+
+                // Atualiza placares dos jogos do grupo
+                g.matches.forEach((m, mIndex) => {
+                    const s1Input = document.getElementById(`gs1_${gIndex}_${mIndex}`);
+                    const s2Input = document.getElementById(`gs2_${gIndex}_${mIndex}`);
+                    if (s1Input) m.s1 = s1Input.value;
+                    if (s2Input) m.s2 = s2Input.value;
+                });
+            });
+        }
+
+        // Calcula a tabela de classificação de um grupo com base nos resultados dos jogos
+        function calculateStandings(group) {
+            let stats = {};
+            group.teams.forEach(t => {
+                stats[t] = { name: t, pts: 1, j: 0, v: 0, e: 0, d: 0, gp: 0, gc: 0, sg: 0 };
+            });
+
+            group.matches.forEach(m => {
+                // Garante que os times do jogo pertencem ao grupo atual
+                if (!stats[m.t1]) stats[m.t1] = { name: m.t1, pts: 0, j: 0, v: 0, e: 0, d: 0, gp: 0, gc: 0, sg: 0 };
+                if (!stats[m.t2]) stats[m.t2] = { name: m.t2, pts: 0, j: 0, v: 0, e: 0, d: 0, gp: 0, gc: 0, sg: 0 };
+
+                if (m.s1 !== "" && m.s2 !== "") {
+                    let g1 = parseInt(m.s1);
+                    let g2 = parseInt(m.s2);
+
+                    stats[m.t1].j++;
+                    stats[m.t2].j++;
+                    stats[m.t1].gp += g1;
+                    stats[m.t1].gc += g2;
+                    stats[m.t2].gp += g2;
+                    stats[m.t2].gc += g1;
+
+                    if (g1 > g2) {
+                        stats[m.t1].v++;
+                        stats[m.t1].pts += 3;
+                        stats[m.t2].d++;
+                    } else if (g2 > g1) {
+                        stats[m.t2].v++;
+                        stats[m.t2].pts += 3;
+                        stats[m.t1].d++;
+                    } else {
+                        stats[m.t1].e++;
+                        stats[m.t1].pts += 1;
+                        stats[m.t2].e++;
+                        stats[m.t2].pts += 1;
+                    }
+                }
+            });
+
+            // Calcula Saldo de Gols
+            Object.values(stats).forEach(s => {
+                s.sg = s.gp - s.gc;
+            });
+
+            // Ordenação: Pontos -> Vitórias -> Saldo de Gols -> Gols Pró
+            return Object.values(stats).sort((a, b) => {
+                if (b.pts !== a.pts) return b.pts - a.pts;
+                if (b.v !== a.v) return b.v - a.v;
+                if (b.sg !== a.sg) return b.sg - a.sg;
+                return b.gp - a.gp;
+            });
+        }
+
+        function renderGroups() {
+            const wrapper = document.getElementById('groups-wrapper');
+            wrapper.innerHTML = '';
+
+            if (!tournament.grupos || !tournament.grupos.data) return;
+
+            tournament.grupos.data.forEach((group, gIndex) => {
+                let standings = calculateStandings(group);
+
+                let standingsRows = '';
+                standings.forEach((st, idx) => {
+                    standingsRows += `
+                        <tr>
+                            <td>${idx + 1}º</td>
+                            <td class="team-cell">
+                                <span class="team-group-display">${st.name}</span>
+                                <input type="text" id="team_${gIndex}_${group.teams.indexOf(st.name) !== -1 ? group.teams.indexOf(st.name) : idx}" class="team-group-input" value="${st.name}">
+                            </td>
+                            <td><b>${st.pts}</b></td>
+                            <td>${st.j}</td>
+                            <td>${st.v}</td>
+                            <td>${st.e}</td>
+                            <td>${st.d}</td>
+                            <td>${st.sg}</td>
+                        </tr>
+                    `;
+                });
+
+                let matchesHtml = '';
+                group.matches.forEach((m, mIndex) => {
+                    matchesHtml += `
+                        <div class="match-card">
+                            <div class="match-header">
+                                <span>Jogo ${mIndex + 1}</span>
+                            </div>
+                            <div class="team-row">
+                                <span class="team-name" title="${m.t1}">${m.t1}</span>
+                                <input type="number" id="gs1_${gIndex}_${mIndex}" class="score-input" value="${m.s1}">
+                                <span class="score-display">${m.s1 !== "" ? m.s1 : "-"}</span>
+                            </div>
+                            <div class="team-row">
+                                <span class="team-name" title="${m.t2}">${m.t2}</span>
+                                <input type="number" id="gs2_${gIndex}_${mIndex}" class="score-input" value="${m.s2}">
+                                <span class="score-display">${m.s2 !== "" ? m.s2 : "-"}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                wrapper.innerHTML += `
+                    <div class="group-container">
+                        <div class="group-title">${group.name}</div>
+                        
+                        <div style="font-size: 0.8rem; color: var(--gold-light); margin-bottom: 6px; font-weight: bold;">Tabela de Classificação</div>
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30px;">#</th>
+                                    <th>Equipe</th>
+                                    <th>PTS</th>
+                                    <th>J</th>
+                                    <th>V</th>
+                                    <th>E</th>
+                                    <th>D</th>
+                                    <th>SG</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${standingsRows}
+                            </tbody>
+                        </table>
+
+                        <div style="font-size: 0.8rem; color: var(--gold-light); margin: 10px 0 6px 0; font-weight: bold;">Confrontos do Grupo</div>
+                        <div class="matches-grid">
+                            ${matchesHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
         function renderPhase(phaseKey, gridId) {
             const grid = document.getElementById(gridId);
+            if (!grid) return;
             grid.innerHTML = '';
             
             tournament[phaseKey].forEach(m => {
@@ -468,13 +821,13 @@
                             <input type="number" id="s2_${phaseKey}_${m.id}" class="score-input" value="${m.s2}">
                             <span class="score-display">${m.s2 !== "" ? m.s2 : "-"}</span>
                         </div>
-                        <button class="save-btn" onclick="saveAndAdvance('${phaseKey}', ${m.id})">Salvar Alterações</button>
+                        <button class="save-btn" onclick="saveKnockoutMatch('${phaseKey}', ${m.id})">Salvar Jogo</button>
                     </div>
                 `;
             });
         }
 
-        async function saveAndAdvance(phaseKey, matchId) {
+        async function saveKnockoutMatch(phaseKey, matchId) {
             const s1Input = document.getElementById(`s1_${phaseKey}_${matchId}`).value;
             const s2Input = document.getElementById(`s2_${phaseKey}_${matchId}`).value;
             const titleInput = document.getElementById(`title_${phaseKey}_${matchId}`).value;
@@ -483,19 +836,16 @@
 
             const match = tournament[phaseKey].find(m => m.id === matchId);
             
-            // Atualiza nomes e título independente de ter placar preenchido
             if (titleInput) match.title = titleInput;
             if (t1Input) match.t1 = t1Input;
             if (t2Input) match.t2 = t2Input;
 
-            // Se houver placares preenchidos, calcula o avanço automático
             if (s1Input !== "" && s2Input !== "") {
                 match.s1 = s1Input;
                 match.s2 = s2Input;
 
                 if (match.next) {
                     const winner = parseInt(s1Input) > parseInt(s2Input) ? match.t1 : (parseInt(s2Input) > parseInt(s1Input) ? match.t2 : match.t1 + " (Pen.)");
-                    
                     const nextMatch = tournament[match.next.phase].find(m => m.id === match.next.matchId);
                     if (nextMatch) {
                         if (match.next.slot === 't1') nextMatch.t1 = winner;
@@ -507,11 +857,7 @@
                 match.s2 = s2Input;
             }
 
-            // Salva permanentemente no Supabase
             await saveTournamentData();
-
-            alert("Alterações salvas e sincronizadas na nuvem com sucesso!");
-            renderAll();
         }
 
         // Carregar dados ao iniciar a página
