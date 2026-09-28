@@ -15,6 +15,7 @@
             --text: #f8fafc;
             --text-muted: #94a3b8;
             --border: #27272a;
+            --danger: #ef4444;
         }
 
         * {
@@ -117,6 +118,17 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .action-buttons {
+            display: none;
+            gap: 8px;
+        }
+
+        .admin-mode .action-buttons {
+            display: flex;
         }
 
         /* Painel de Configuração de Grupos (Admin) */
@@ -139,6 +151,7 @@
             align-items: center;
             margin-bottom: 10px;
             font-size: 0.85rem;
+            flex-wrap: wrap;
         }
 
         .config-row select, .config-row input {
@@ -320,17 +333,22 @@
             background: var(--gold);
             color: var(--bg-dark);
             border: none;
-            padding: 8px 14px;
+            padding: 6px 12px;
             border-radius: 6px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
             cursor: pointer;
-            display: none;
-            margin-bottom: 15px;
         }
 
-        .admin-mode .global-save-btn {
-            display: inline-block;
+        .reset-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         /* Rodapé Discreto Admin */
@@ -397,62 +415,93 @@
     <div id="phase-grupos" class="phase-content active">
         <div class="section-title">
             <span>Fase de Grupos</span>
-            <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações Gerais</button>
+            <div class="action-buttons">
+                <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
+                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+            </div>
         </div>
 
         <!-- Painel de Configuração de Grupos (Admin) -->
         <div class="groups-config-panel">
-            <h3 style="color: var(--gold); font-size: 0.9rem; margin-bottom: 10px;">⚙️ Gerador Automático de Grupos</h3>
+            <h3 style="color: var(--gold); font-size: 0.9rem; margin-bottom: 10px;">⚙️ Gerador Automático de Grupos (Até 16 Grupos)</h3>
             <div class="config-row">
-                <label>Quantidade de Grupos:</label>
+                <label>Qtd. Grupos:</label>
                 <select id="config-num-groups">
                     <option value="2">2 Grupos</option>
                     <option value="4">4 Grupos</option>
                     <option value="8">8 Grupos</option>
                     <option value="12">12 Grupos</option>
-                    <option value="16" selected>16 Grupos</option>
+                    <option value="16">16 Grupos</option>
                 </select>
-                <label>Times por Grupo:</label>
+                <label>Times/Grupo:</label>
                 <select id="config-teams-per-group">
                     <option value="3" selected>3 Times (3 Jogos)</option>
                     <option value="4">4 Times (6 Jogos)</option>
                 </select>
-                <button class="save-btn" style="width: auto; margin-top: 0; padding: 6px 14px;" onclick="generateGroupsStructure()">Gerar Estrutura de Grupos</button>
+                <button class="save-btn" style="width: auto; margin-top: 0; padding: 6px 14px;" onclick="generateGroupsStructure()">Gerar Estrutura</button>
             </div>
-            <p style="font-size: 0.75rem; color: var(--text-muted);">Aviso: Gerar nova estrutura sobrescreve os times atuais dos grupos.</p>
         </div>
 
-        <!-- Renderização Dinâmica dos Grupos -->
         <div id="groups-wrapper"></div>
     </div>
 
     <!-- CONTEÚDO: 16 AVOS -->
     <div id="phase-f16" class="phase-content">
-        <div class="section-title">16 Avos de Final</div>
+        <div class="section-title">
+            <span>16 Avos de Final</span>
+            <div class="action-buttons">
+                <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
+                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+            </div>
+        </div>
         <div class="matches-grid" id="grid-f16"></div>
     </div>
 
     <!-- CONTEÚDO: OITAVAS -->
     <div id="phase-oitavas" class="phase-content">
-        <div class="section-title">Oitavas de Final</div>
+        <div class="section-title">
+            <span>Oitavas de Final</span>
+            <div class="action-buttons">
+                <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
+                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+            </div>
+        </div>
         <div class="matches-grid" id="grid-oitavas"></div>
     </div>
 
     <!-- CONTEÚDO: QUARTAS -->
     <div id="phase-quartas" class="phase-content">
-        <div class="section-title">Quartas de Final</div>
+        <div class="section-title">
+            <span>Quartas de Final</span>
+            <div class="action-buttons">
+                <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
+                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+            </div>
+        </div>
         <div class="matches-grid" id="grid-quartas"></div>
     </div>
 
     <!-- CONTEÚDO: SEMIFINAL -->
     <div id="phase-semi" class="phase-content">
-        <div class="section-title">Semifinais</div>
+        <div class="section-title">
+            <span>Semifinais</span>
+            <div class="action-buttons">
+                <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
+                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+            </div>
+        </div>
         <div class="matches-grid" id="grid-semi"></div>
     </div>
 
     <!-- CONTEÚDO: FINAL -->
     <div id="phase-final" class="phase-content">
-        <div class="section-title">🏆 Grande Final</div>
+        <div class="section-title">
+            <span>🏆 Grande Final</span>
+            <div class="action-buttons">
+                <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
+                <button class="reset-btn" onclick="resetTournament()">Zerar Torneio</button>
+            </div>
+        </div>
         <div class="matches-grid" id="grid-final"></div>
     </div>
 
@@ -475,20 +524,38 @@
                 data: [
                     {
                         name: "Grupo A",
-                        teams: ["Internacional (Nathan)", "Once Caldas (Alyson)", "Independiente (Kolberg)"],
+                        teams: ["Time 1", "Time 2", "Time 3"],
                         matches: [
-                            { id: 1, t1: "Internacional (Nathan)", t2: "Once Caldas (Alyson)", s1: "", s2: "" },
-                            { id: 2, t1: "Internacional (Nathan)", t2: "Independiente (Kolberg)", s1: "", s2: "" },
-                            { id: 3, t1: "Once Caldas (Alyson)", t2: "Independiente (Kolberg)", s1: "", s2: "" }
+                            { id: 1, t1: "Time 1", t2: "Time 2", s1: "", s2: "" },
+                            { id: 2, t1: "Time 1", t2: "Time 3", s1: "", s2: "" },
+                            { id: 3, t1: "Time 2", t2: "Time 3", s1: "", s2: "" }
                         ]
                     },
                     {
                         name: "Grupo B",
-                        teams: ["San Lorenzo (Murillo)", "Junior (Kaio)", "Huachipato (Adriano A.)"],
+                        teams: ["Time 1", "Time 2", "Time 3"],
                         matches: [
-                            { id: 1, t1: "San Lorenzo (Murillo)", t2: "Junior (Kaio)", s1: "", s2: "" },
-                            { id: 2, t1: "San Lorenzo (Murillo)", t2: "Huachipato (Adriano A.)", s1: "", s2: "" },
-                            { id: 3, t1: "Junior (Kaio)", t2: "Huachipato (Adriano A.)", s1: "", s2: "" }
+                            { id: 1, t1: "Time 1", t2: "Time 2", s1: "", s2: "" },
+                            { id: 2, t1: "Time 1", t2: "Time 3", s1: "", s2: "" },
+                            { id: 3, t1: "Time 2", t2: "Time 3", s1: "", s2: "" }
+                        ]
+                    },
+                    {
+                        name: "Grupo C",
+                        teams: ["Time 1", "Time 2", "Time 3"],
+                        matches: [
+                            { id: 1, t1: "Time 1", t2: "Time 2", s1: "", s2: "" },
+                            { id: 2, t1: "Time 1", t2: "Time 3", s1: "", s2: "" },
+                            { id: 3, t1: "Time 2", t2: "Time 3", s1: "", s2: "" }
+                        ]
+                    },
+                    {
+                        name: "Grupo D",
+                        teams: ["Time 1", "Time 2", "Time 3"],
+                        matches: [
+                            { id: 1, t1: "Time 1", t2: "Time 2", s1: "", s2: "" },
+                            { id: 2, t1: "Time 1", t2: "Time 3", s1: "", s2: "" },
+                            { id: 3, t1: "Time 2", t2: "Time 3", s1: "", s2: "" }
                         ]
                     }
                 ]
@@ -498,20 +565,20 @@
                 { id: 2, title: "Jogo 2", t1: "1º Grupo B", t2: "2º Grupo A", s1: "", s2: "", next: { phase: 'oitavas', matchId: 1, slot: 't2' } }
             ],
             oitavas: [
-                { id: 1, title: "Jogo 3", t1: "Aguardando Vencedor Jogo 1", t2: "Aguardando Vencedor Jogo 2", s1: "", s2: "", next: { phase: 'quartas', matchId: 1, slot: 't1' } }
+                { id: 1, title: "Jogo 3", t1: "Aguardando Vencedor", t2: "Aguardando Vencedor", s1: "", s2: "", next: { phase: 'quartas', matchId: 1, slot: 't1' } }
             ],
             quartas: [
-                { id: 1, title: "Jogo 4", t1: "Aguardando Vencedor Jogo 3", t2: "Aguardando Vencedor...", s1: "", s2: "", next: { phase: 'semi', matchId: 1, slot: 't1' } }
+                { id: 1, title: "Jogo 4", t1: "Aguardando Vencedor", t2: "Aguardando Vencedor", s1: "", s2: "", next: { phase: 'semi', matchId: 1, slot: 't1' } }
             ],
             semi: [
-                { id: 1, title: "Jogo 5", t1: "Aguardando...", t2: "Aguardando...", s1: "", s2: "", next: { phase: 'final', matchId: 1, slot: 't1' } }
+                { id: 1, title: "Jogo 5", t1: "Aguardando Vencedor", t2: "Aguardando Vencedor", s1: "", s2: "", next: { phase: 'final', matchId: 1, slot: 't1' } }
             ],
             final: [
-                { id: 1, title: "Grande Final", t1: "Aguardando...", t2: "Aguardando...", s1: "", s2: "", next: null }
+                { id: 1, title: "Grande Final", t1: "Aguardando Vencedor", t2: "Aguardando Vencedor", s1: "", s2: "", next: null }
             ]
         };
 
-        let tournament = defaultTournament;
+        let tournament = JSON.parse(JSON.stringify(defaultTournament));
         let isAdmin = false;
 
         async function loadTournamentData() {
@@ -524,24 +591,23 @@
 
                 if (data && data.data) {
                     tournament = data.data;
-                    // Garante compatibilidade se estrutura antiga não tiver grupos
                     if (!tournament.grupos) tournament.grupos = defaultTournament.grupos;
                 } else {
                     await supabaseClient.from('tournament_state').upsert({ id: 1, data: defaultTournament });
                 }
                 document.getElementById('sync-status').innerText = "● Sincronizado com a nuvem";
+                updateConfigUI();
                 renderAll();
             } catch (err) {
                 console.error(err);
                 document.getElementById('sync-status').innerText = "● Erro ao conectar na nuvem";
+                updateConfigUI();
                 renderAll();
             }
         }
 
         async function saveTournamentData() {
             document.getElementById('sync-status').innerText = "● Salvando na nuvem...";
-            
-            // Recolhe dados atuais da tela de grupos antes de salvar
             collectGroupsFromDOM();
 
             let { error } = await supabaseClient
@@ -553,8 +619,28 @@
                 document.getElementById('sync-status').innerText = "● Erro ao salvar";
             } else {
                 document.getElementById('sync-status').innerText = "● Sincronizado com a nuvem";
-                alert("Dados salvos e sincronizados com sucesso!");
+                alert("Alterações salvas com sucesso!");
+                updateConfigUI();
                 renderAll();
+            }
+        }
+
+        async function resetTournament() {
+            if (confirm("Tem certeza que deseja ZERAR todo o torneio? Todos os placares, nomes e fases serão limpos para o padrão inicial.")) {
+                tournament = JSON.parse(JSON.stringify(defaultTournament));
+                await saveTournamentData();
+                alert("Torneio zerado e limpo com sucesso!");
+                updateConfigUI();
+                renderAll();
+            }
+        }
+
+        function updateConfigUI() {
+            if (tournament.grupos && tournament.grupos.config) {
+                const numGroupsSelect = document.getElementById('config-num-groups');
+                const teamsPerGroupSelect = document.getElementById('config-teams-per-group');
+                if (numGroupsSelect) numGroupsSelect.value = tournament.grupos.config.numGroups;
+                if (teamsPerGroupSelect) teamsPerGroupSelect.value = tournament.grupos.config.teamsPerGroup;
             }
         }
 
@@ -596,18 +682,17 @@
             renderPhase('final', 'grid-final');
         }
 
-        // --- GERADOR AUTOMÁTICO DE GRUPOS E CONFRONTOS ---
         function generateGroupsStructure() {
             const numGroups = parseInt(document.getElementById('config-num-groups').value);
             const teamsPerGroup = parseInt(document.getElementById('config-teams-per-group').value);
 
             let newGroupsData = [];
             const groupNames = [
-    "Grupo A", "Grupo B", "Grupo C", "Grupo D", 
-    "Grupo E", "Grupo F", "Grupo G", "Grupo H", 
-    "Grupo I", "Grupo J", "Grupo K", "Grupo L", 
-    "Grupo M", "Grupo N", "Grupo O", "Grupo P"
-];
+                "Grupo A", "Grupo B", "Grupo C", "Grupo D", 
+                "Grupo E", "Grupo F", "Grupo G", "Grupo H", 
+                "Grupo I", "Grupo J", "Grupo K", "Grupo L", 
+                "Grupo M", "Grupo N", "Grupo O", "Grupo P"
+            ];
 
             for (let i = 0; i < numGroups; i++) {
                 let teams = [];
@@ -615,16 +700,13 @@
                     teams.push(`Time ${t + 1} do ${groupNames[i]}`);
                 }
 
-                // Gera confrontos automáticos baseado na quantidade de times
                 let matches = [];
                 let matchIdCounter = 1;
                 if (teamsPerGroup === 3) {
-                    // 3 jogos: 0 vs 1, 0 vs 2, 1 vs 2
                     matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[1], s1: "", s2: "" });
                     matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[2], s1: "", s2: "" });
                     matches.push({ id: matchIdCounter++, t1: teams[1], t2: teams[2], s1: "", s2: "" });
                 } else if (teamsPerGroup === 4) {
-                    // 6 jogos: 0x1, 2x3, 0x2, 1x3, 0x3, 1x2
                     matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[1], s1: "", s2: "" });
                     matches.push({ id: matchIdCounter++, t1: teams[2], t2: teams[3], s1: "", s2: "" });
                     matches.push({ id: matchIdCounter++, t1: teams[0], t2: teams[2], s1: "", s2: "" });
@@ -648,18 +730,15 @@
             saveTournamentData();
         }
 
-        // Recolhe dados editados na tela antes de salvar
         function collectGroupsFromDOM() {
             if (!tournament.grupos || !tournament.grupos.data) return;
 
             tournament.grupos.data.forEach((g, gIndex) => {
-                // Atualiza nomes dos times
                 g.teams.forEach((_, tIndex) => {
                     const input = document.getElementById(`team_${gIndex}_${tIndex}`);
                     if (input) g.teams[tIndex] = input.value;
                 });
 
-                // Atualiza placares dos jogos do grupo
                 g.matches.forEach((m, mIndex) => {
                     const s1Input = document.getElementById(`gs1_${gIndex}_${mIndex}`);
                     const s2Input = document.getElementById(`gs2_${gIndex}_${mIndex}`);
@@ -669,15 +748,13 @@
             });
         }
 
-        // Calcula a tabela de classificação de um grupo com base nos resultados dos jogos
         function calculateStandings(group) {
             let stats = {};
             group.teams.forEach(t => {
-                stats[t] = { name: t, pts: 1, j: 0, v: 0, e: 0, d: 0, gp: 0, gc: 0, sg: 0 };
+                stats[t] = { name: t, pts: 0, j: 0, v: 0, e: 0, d: 0, gp: 0, gc: 0, sg: 0 };
             });
 
             group.matches.forEach(m => {
-                // Garante que os times do jogo pertencem ao grupo atual
                 if (!stats[m.t1]) stats[m.t1] = { name: m.t1, pts: 0, j: 0, v: 0, e: 0, d: 0, gp: 0, gc: 0, sg: 0 };
                 if (!stats[m.t2]) stats[m.t2] = { name: m.t2, pts: 0, j: 0, v: 0, e: 0, d: 0, gp: 0, gc: 0, sg: 0 };
 
@@ -709,12 +786,10 @@
                 }
             });
 
-            // Calcula Saldo de Gols
             Object.values(stats).forEach(s => {
                 s.sg = s.gp - s.gc;
             });
 
-            // Ordenação: Pontos -> Vitórias -> Saldo de Gols -> Gols Pró
             return Object.values(stats).sort((a, b) => {
                 if (b.pts !== a.pts) return b.pts - a.pts;
                 if (b.v !== a.v) return b.v - a.v;
@@ -734,12 +809,15 @@
 
                 let standingsRows = '';
                 standings.forEach((st, idx) => {
+                    let realTeamIndex = group.teams.indexOf(st.name);
+                    if (realTeamIndex === -1) realTeamIndex = idx;
+
                     standingsRows += `
                         <tr>
                             <td>${idx + 1}º</td>
                             <td class="team-cell">
                                 <span class="team-group-display">${st.name}</span>
-                                <input type="text" id="team_${gIndex}_${group.teams.indexOf(st.name) !== -1 ? group.teams.indexOf(st.name) : idx}" class="team-group-input" value="${st.name}">
+                                <input type="text" id="team_${gIndex}_${realTeamIndex}" class="team-group-input" value="${st.name}">
                             </td>
                             <td><b>${st.pts}</b></td>
                             <td>${st.j}</td>
@@ -775,7 +853,6 @@
                 wrapper.innerHTML += `
                     <div class="group-container">
                         <div class="group-title">${group.name}</div>
-                        
                         <div style="font-size: 0.8rem; color: var(--gold-light); margin-bottom: 6px; font-weight: bold;">Tabela de Classificação</div>
                         <table class="standings-table">
                             <thead>
@@ -794,7 +871,6 @@
                                 ${standingsRows}
                             </tbody>
                         </table>
-
                         <div style="font-size: 0.8rem; color: var(--gold-light); margin: 10px 0 6px 0; font-weight: bold;">Confrontos do Grupo</div>
                         <div class="matches-grid">
                             ${matchesHtml}
@@ -809,6 +885,8 @@
             if (!grid) return;
             grid.innerHTML = '';
             
+            if (!tournament[phaseKey]) return;
+
             tournament[phaseKey].forEach(m => {
                 grid.innerHTML += `
                     <div class="match-card">
@@ -867,7 +945,6 @@
             await saveTournamentData();
         }
 
-        // Carregar dados ao iniciar a página
         loadTournamentData();
     </script>
 </body>
