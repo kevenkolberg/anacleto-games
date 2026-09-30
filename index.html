@@ -512,7 +512,6 @@
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Gerador automático de matrizes padrão para o mata-mata completo
         function generateDefaultKnockout(count, phaseName, nextPhase, nextMatchOffset = 0) {
             let matches = [];
             for (let i = 1; i <= count; i++) {
@@ -973,7 +972,7 @@
                 if (match.next) {
                     const winner = parseInt(s1Input) > parseInt(s2Input) ? match.t1 : (parseInt(s2Input) > parseInt(s1Input) ? match.t2 : match.t1 + " (Pen.)");
                     const nextMatch = tournament[match.next.phase].find(m => m.id === match.next.matchId);
-                    if, nextMatch {
+                    if (nextMatch) {
                         if (match.next.slot === 't1') nextMatch.t1 = winner;
                         if (match.next.slot === 't2') nextMatch.t2 = winner;
                     }
