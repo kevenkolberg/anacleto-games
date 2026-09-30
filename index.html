@@ -421,7 +421,6 @@
             </div>
         </div>
 
-        <!-- Painel de Configuração de Grupos (Admin) -->
         <div class="groups-config-panel">
             <h3 style="color: var(--gold); font-size: 0.9rem; margin-bottom: 10px;">⚙️ Gerenciador de Grupos (3 Times por Chave)</h3>
             <div class="config-row">
@@ -444,7 +443,7 @@
     <!-- CONTEÚDO: 16 AVOS -->
     <div id="phase-f16" class="phase-content">
         <div class="section-title">
-            <span>16 Avos de Final</span>
+            <span>16 Avos de Final (16 Jogos)</span>
             <div class="action-buttons">
                 <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
                 <button class="reset-btn" onclick="resetPhase('f16')">Zerar Fase</button>
@@ -456,7 +455,7 @@
     <!-- CONTEÚDO: OITAVAS -->
     <div id="phase-oitavas" class="phase-content">
         <div class="section-title">
-            <span>Oitavas de Final</span>
+            <span>Oitavas de Final (8 Jogos)</span>
             <div class="action-buttons">
                 <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
                 <button class="reset-btn" onclick="resetPhase('oitavas')">Zerar Fase</button>
@@ -468,7 +467,7 @@
     <!-- CONTEÚDO: QUARTAS -->
     <div id="phase-quartas" class="phase-content">
         <div class="section-title">
-            <span>Quartas de Final</span>
+            <span>Quartas de Final (4 Jogos)</span>
             <div class="action-buttons">
                 <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
                 <button class="reset-btn" onclick="resetPhase('quartas')">Zerar Fase</button>
@@ -480,7 +479,7 @@
     <!-- CONTEÚDO: SEMIFINAL -->
     <div id="phase-semi" class="phase-content">
         <div class="section-title">
-            <span>Semifinais</span>
+            <span>Semifinais (2 Jogos)</span>
             <div class="action-buttons">
                 <button class="global-save-btn" onclick="saveTournamentData()">Salvar Alterações</button>
                 <button class="reset-btn" onclick="resetPhase('semi')">Zerar Fase</button>
@@ -508,11 +507,33 @@
     </footer>
 
     <script>
-        // CONFIGURAÇÃO DO SUPABASE
         const SUPABASE_URL = 'https://rlsksumgifwvalobwgpn.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_qQqAOvH7T6JgN8BXj4BF7w_3jUejhHF';
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Gerador automático de matrizes padrão para o mata-mata completo
+        function generateDefaultKnockout(count, phaseName, nextPhase, nextMatchOffset = 0) {
+            let matches = [];
+            for (let i = 1; i <= count; i++) {
+                let nextInfo = null;
+                if (nextPhase) {
+                    let targetMatchId = Math.ceil(i / 2) + nextMatchOffset;
+                    let slot = (i % 2 !== 0) ? 't1' : 't2';
+                    nextInfo = { phase: nextPhase, matchId: targetMatchId, slot: slot };
+                }
+                matches.push({
+                    id: i,
+                    title: `Jogo ${i}`,
+                    t1: `Aguardando Vencedor`,
+                    t2: `Aguardando Vencedor`,
+                    s1: "",
+                    s2: "",
+                    next: nextInfo
+                });
+            }
+            return matches;
+        }
 
         let defaultTournament = {
             grupos: {
@@ -556,19 +577,10 @@
                     }
                 ]
             },
-            f16: [
-                { id: 1, title: "Jogo 1", t1: "1º Grupo A", t2: "2º Grupo B", s1: "", s2: "", next: { phase: 'oitavas', matchId: 1, slot: 't1' } },
-                { id: 2, title: "Jogo 2", t1: "1º Grupo B", t2: "2º Grupo A", s1: "", s2: "", next: { phase: 'oitavas', matchId: 1, slot: 't2' } }
-            ],
-            oitavas: [
-                { id: 1, title: "Jogo 3", t1: "Aguardando Vencedor", t2: "Aguardando Vencedor", s1: "", s2: "", next: { phase: 'quartas', matchId: 1, slot: 't1' } }
-            ],
-            quartas: [
-                { id: 1, title: "Jogo 4", t1: "Aguardando Vencedor", t2: "Aguardando Vencedor", s1: "", s2: "", next: { phase: 'semi', matchId: 1, slot: 't1' } }
-            ],
-            semi: [
-                { id: 1, title: "Jogo 5", t1: "Aguardando Vencedor", t2: "Aguardando Vencedor", s1: "", s2: "", next: { phase: 'final', matchId: 1, slot: 't1' } }
-            ],
+            f16: generateDefaultKnockout(16, '16 Avos', 'oitavas'),
+            oitavas: generateDefaultKnockout(8, 'Oitavas', 'quartas'),
+            quartas: generateDefaultKnockout(4, 'Quartas', 'semi'),
+            semi: generateDefaultKnockout(2, 'Semi', 'final'),
             final: [
                 { id: 1, title: "Grande Final", t1: "Aguardando Vencedor", t2: "Aguardando Vencedor", s1: "", s2: "", next: null }
             ]
@@ -588,8 +600,12 @@
                 if (data && data.data) {
                     tournament = data.data;
                     if (!tournament.grupos) tournament.grupos = defaultTournament.grupos;
+                    if (!tournament.f16 || tournament.f16.length !== 16) tournament.f16 = defaultTournament.f16;
+                    if (!tournament.oitavas || tournament.oitavas.length !== 8) tournament.oitavas = defaultTournament.oitavas;
+                    if (!tournament.quartas || tournament.quartas.length !== 4) tournament.quartas = defaultTournament.quartas;
+                    if (!tournament.semi || tournament.semi.length !== 2) tournament.semi = defaultTournament.semi;
+                    if (!tournament.final) tournament.final = defaultTournament.final;
                     
-                    // Garante que os confrontos tenham os índices corretos corretos por grupo (0 vs 1, 0 vs 2, 1 vs 2)
                     tournament.grupos.data.forEach(g => {
                         if (!g.matches || g.matches.length !== 3) {
                             g.matches = [
@@ -830,25 +846,6 @@
                 let standings = calculateStandings(group);
 
                 let standingsRows = '';
-                group.teams.forEach((teamName, tIndex) => {
-                    standingsRows += `
-                        <tr>
-                            <td>${tIndex + 1}º</td>
-                            <td class="team-cell">
-                                <span class="team-group-display">${teamName}</span>
-                                <input type="text" id="team_${gIndex}_${tIndex}" class="team-group-input" value="${teamName}">
-                            </td>
-                            <td><b>0</b></td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                        </tr>
-                    `;
-                });
-
-                standingsRows = '';
                 standings.forEach((st, idx) => {
                     let realTeamIndex = group.teams.indexOf(st.name);
                     if (realTeamIndex === -1) realTeamIndex = idx;
@@ -976,7 +973,7 @@
                 if (match.next) {
                     const winner = parseInt(s1Input) > parseInt(s2Input) ? match.t1 : (parseInt(s2Input) > parseInt(s1Input) ? match.t2 : match.t1 + " (Pen.)");
                     const nextMatch = tournament[match.next.phase].find(m => m.id === match.next.matchId);
-                    if (nextMatch) {
+                    if, nextMatch {
                         if (match.next.slot === 't1') nextMatch.t1 = winner;
                         if (match.next.slot === 't2') nextMatch.t2 = winner;
                     }
